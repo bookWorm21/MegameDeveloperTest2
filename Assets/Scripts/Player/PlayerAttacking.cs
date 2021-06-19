@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Player
 {
@@ -16,6 +17,7 @@ namespace Assets.Scripts.Player
         [SerializeField] private Transform _root;
         [SerializeField] private GameObject _weapon;
         [SerializeField] private GameObject _sword;
+        [SerializeField] private Text _promt;
 
         private int _startAttackHashCode = Animator.StringToHash("startAttack");
         private int _hitAttackHashCode = Animator.StringToHash("hitAttack");
@@ -28,6 +30,7 @@ namespace Assets.Scripts.Player
         {
             _animationEventsHandler.Hitted += OnHit;
             _animationEventsHandler.EndedAttack += EndAttack;
+            _promt.enabled = false;
         }
 
         private void Update()
@@ -43,6 +46,7 @@ namespace Assets.Scripts.Player
 
         private void Attack()
         {
+            _promt.gameObject.SetActive(false);
             _weapon.SetActive(false);
             _sword.SetActive(true);
 
@@ -88,12 +92,15 @@ namespace Assets.Scripts.Player
 
             _attack = false;
             _playerMovable.enabled = true;
+
+            _promt.gameObject.SetActive(true);
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.TryGetComponent(out _focusedEnemy))
             {
+                _promt.enabled = true;
                 _readyFinishing = true;
             }
         }
@@ -102,6 +109,7 @@ namespace Assets.Scripts.Player
         {
             if (other.TryGetComponent(out EnemyProximity _))
             {
+                _promt.enabled = false;
                 _readyFinishing = false;
                 _focusedEnemy = null;
             }
