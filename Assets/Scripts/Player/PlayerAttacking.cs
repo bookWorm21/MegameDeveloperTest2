@@ -23,6 +23,7 @@ namespace Assets.Scripts.Player
         private int _hitAttackHashCode = Animator.StringToHash("hitAttack");
 
         private EnemyProximity _focusedEnemy;
+        private EnemyHealth _attackedEnemy;
         private bool _readyFinishing = false;
         private bool _attack = false;
 
@@ -31,6 +32,7 @@ namespace Assets.Scripts.Player
             _animationEventsHandler.Hitted += OnHit;
             _animationEventsHandler.EndedAttack += EndAttack;
             _promt.enabled = false;
+            Application.targetFrameRate = 100;
         }
 
         private void Update()
@@ -52,27 +54,32 @@ namespace Assets.Scripts.Player
 
             _attack = true;
             _playerMovable.enabled = false;
+
+            _attackedEnemy = _focusedEnemy.Enemy;
             StartCoroutine(ApproachToEnemy());
         }
 
         private IEnumerator ApproachToEnemy()
         {
-            Vector3 lookedEnemy = _focusedEnemy.transform.position;
+            _promt.enabled = false;
+            _readyFinishing = false;
+
+            Vector3 lookedEnemy = _attackedEnemy.transform.position;
             lookedEnemy.y = transform.position.y;
             _root.LookAt(lookedEnemy);
             _topBone.eulerAngles = Vector3.zero;
 
-            if(Vector3.Distance(transform.position, _focusedEnemy.transform.position) > _attackDistance)
+            if(Vector3.Distance(transform.position, _attackedEnemy.transform.position) > _attackDistance)
             {
                 _animator.SetTrigger(_startAttackHashCode);
                 _animator.speed = _animationAccelerationMultiplier;
 
             }
 
-            while (Vector3.Distance(transform.position, _focusedEnemy.transform.position) > _attackDistance)
+            while (Vector3.Distance(transform.position, _attackedEnemy.transform.position) > _attackDistance)
             {
                 transform.position = Vector3.MoveTowards(transform.position,
-                       _focusedEnemy.transform.position, _speedOnAttack * Time.deltaTime);
+                       _attackedEnemy.transform.position, _speedOnAttack * Time.deltaTime);
                 yield return null;
             }
 
@@ -82,7 +89,7 @@ namespace Assets.Scripts.Player
 
         private void OnHit()
         {
-            _focusedEnemy.Enemy.QuickKill();
+            _attackedEnemy.QuickKill();
         }
 
         private void EndAttack()
@@ -107,11 +114,14 @@ namespace Assets.Scripts.Player
 
         private void OnTriggerExit(Collider other)
         {
-            if (other.TryGetComponent(out EnemyProximity _))
+            if (other.TryGetComponent(out EnemyProximity enemy))
             {
-                _promt.enabled = false;
-                _readyFinishing = false;
-                _focusedEnemy = null;
+                if (enemy == _focusedEnemy)
+                {
+                    _focusedEnemy = null;
+                    _promt.enabled = false;
+                    _readyFinishing = false;
+                }
             }
         }
     }

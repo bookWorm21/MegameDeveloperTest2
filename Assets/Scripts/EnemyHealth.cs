@@ -44,6 +44,7 @@ namespace Assets.Scripts
             _main.position = new Vector3(x, 0, z);
             SwitchPhysicRagdoll(false);
             gameObject.SetActive(true);
+            _proximityCollider.enabled = true;
         }
 
         public void QuickKill()
@@ -51,7 +52,6 @@ namespace Assets.Scripts
             SwitchPhysicRagdoll(true);
             _proximityCollider.enabled = false;
             StartCoroutine(Respawn());
-            _proximityCollider.enabled = true;
         }
     }
 }

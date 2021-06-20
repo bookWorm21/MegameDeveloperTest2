@@ -7,6 +7,7 @@ namespace Assets.Scripts.Player
     public class PlayerMovable : MonoBehaviour
     {
         [SerializeField] private float _speed;
+        [SerializeField] private float _animationRotationYOffset;
         [SerializeField] private Animator _animator;
         [SerializeField] private Transform _targetBone;
         [SerializeField] private Transform _forwardPoint;
@@ -48,7 +49,7 @@ namespace Assets.Scripts.Player
             }
 
             _currentRotation = _targetBone.eulerAngles;
-            _currentRotation.y += rotationAngle - transform.eulerAngles.y;
+            _currentRotation.y += rotationAngle - transform.eulerAngles.y + _animationRotationYOffset;
             _targetBone.eulerAngles = _currentRotation;
         }
     }
